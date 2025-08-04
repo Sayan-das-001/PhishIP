@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scan Result</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        body {
+            background: #000;
+            color: #00ff99;
+            font-family: monospace;
+            overflow: hidden;
+        }
+        .container {
+            margin: 120px auto;
+            width: 80%;
+            max-width: 800px;
+            background: rgba(0,0,0,0.8);
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 0 20px #00ff99;
+        }
+        .console-output {
+            font-size: 16px;
+            white-space: pre-line;
+            color: #00ff99;
+            margin-bottom: 20px;
+        }
+        .hidden {
+            display: none;
+        }
+        button {
+            position: relative;
+            background: #0f0;
+            color: #000;
+            padding: 14px;
+            font-size: 18px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: monospace;
+            font-weight: bold;
+            text-transform: uppercase;
+            box-shadow: 0 0 10px #0f0, 0 0 20px #0f0;
+            transition: 0.2s ease-in-out;
+            overflow: hidden;
+        }
+        button:hover {
+            background: #00ff99;
+            box-shadow: 0 0 20px #00ff99, 0 0 40px #00ff99;
+            transform: scale(1.05);
+        }
+        /* Persistent Back Button */
+        .top-back-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(0,255,0,0.1);
+            padding: 10px 18px;
+            border: 2px solid #00ff99;
+            border-radius: 8px;
+            color: #00ff99;
+            text-decoration: none;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+        .top-back-btn:hover {
+            background: #00ff99;
+            color: black;
+            box-shadow: 0 0 20px #00ff99;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Persistent Back Button -->
+<a href="{{ url_for('home') }}" class="top-back-btn">⬅ Back</a>
+
+<canvas id="matrixCanvas"></canvas>
+
+<div class="container">
+    <div id="console" class="console-output"></div>
+
+    <div id="realResult" class="hidden">
+        {% if message %}
+            <div class="result-box">
+                <p><strong>Message:</strong> {{ message }}</p>
+            </div>
+        {% endif %}
+
+        {% if input_url %}
+            <div class="result-box">
+                <p><strong>URL:</strong> {{ input_url }}</p>
+                <p><strong>Predicted Class:</strong> {{ classification }}</p>
+            </div>
+        {% endif %}
+
+        <br>
+        <a href="{{ url_for('home') }}"><button>⬅ Back to Home</button></a>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='matrix.js') }}"></script>
+<script src="{{ url_for('static', filename='sound.js') }}"></script>
+
+<script>
+    const consoleBox = document.getElementById('console');
+    const realResult = document.getElementById('realResult');
+    const typingSound = new Audio('/static/sounds/typing.mp3');
+    const beepSound = new Audio('/static/sounds/beep.mp3');
+
+    const lines = [
+        "[*] Connecting to server...",
+        "[*] Scanning data...",
+        "[*] Analyzing threat level...",
+        "[*] Scan Complete!"
+    ];
+
+    let index = 0;
+
+    function typeLine() {
+        if (index < lines.length) {
+            consoleBox.textContent += lines[index] + "\n";
+            typingSound.play();
+            index++;
+            setTimeout(typeLine, 1000);
+        } else {
+            typingSound.pause();
+            beepSound.play();
+            setTimeout(() => {
+                consoleBox.style.display = 'none';
+                realResult.classList.remove('hidden');
+            }, 1000);
+        }
+    }
+
+    typeLine();
+</script>
+
+</body>
+</html>
